@@ -53,14 +53,27 @@ end
 def calc_vector(startX, startY, endX, endY)
   return if endX < 0 or endY < 0 or endX >= $lineLength or endY >=$linesCount
   product = 1
-  # rethink the indexing here, doesn't work with start == end
-  xs = (startX..endX).to_a
-  ys = (startY..endY).to_a
+
+  xs = stretch_index(startX,endX)
+  ys = stretch_index(startY,endY)
+
   for i in 0..$vLength-1
-    product *= $grid[xs[i]][ys[i]].to_i
+    product *= $grid[ys[i]][xs[i]].to_i
   end
 
   $products.push(product)
+end
+
+def stretch_index(start, finish)
+  vector = []
+  if start == finish
+    $vLength.times{ vector.push(start) }
+  else
+    start.step(finish, (finish-start).abs / (finish-start)) do |x|
+      vector.push(x)
+    end
+  end
+  return vector
 end
 
 def mainLoop
