@@ -111,15 +111,45 @@ class MyBigNum
     @bigNum = bigNumberAsString
   end
 
+  attr_accessor :bigNum
+
+  def size
+    return @bigNum.size
+  end
+
   def add(anotherOneOfMe)
     me = @bigNum
 
     # pad zeroes
     sizeDifference = me.size - anotherOneOfMe.size
     if sizeDifference > 0
-      anotherOneOfMe = '0' * sizeDifference + anotherOneOfMe
-    else if sizeDifference < 0
+      anotherOneOfMe.bigNum = '0' * sizeDifference + anotherOneOfMe.bigNum
+    elsif sizeDifference < 0
       me = '0' * sizeDifference + me
     end
+
+    sums = ''
+    carry = 0
+    for i in 0..me.size-1
+      sum = @bigNum[i] + anotherOneOfMe.bigNum[i] + carry.to_s
+      carry = 0
+      if sum.to_i > 9
+        carry = 1
+        sum = sum.to_i - 10
+      end
+      sums = sum + sums
+    end
+    return MyBigNum.new(sums)
   end
+
+end
+
+lotsOfBigNums = []
+bigNums.each do |x|
+  lotsOfBigNums.push(MyBigNum.new(x))
+end
+
+sum = MyBigNum.new('0')
+lotsOfBigNums.each do |x|
+  sum = x.add(sum)
 end
