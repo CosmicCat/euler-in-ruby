@@ -106,56 +106,7 @@ bigNums = %w{
 53503534226472524250874054075591789781264330331690
 }
 
-class MyBigNum
-  def initialize(bigNumberAsString)
-    @bigNum = bigNumberAsString
-  end
+nums = bigNums.map{|x| x.to_i}
+sum = nums.reduce(:+)
 
-  attr_accessor :bigNum
-
-  def size
-    return @bigNum.size
-  end
-
-  def pad_zeroes_on_left(str, numZeroes)
-    return '0' * numZeroes + str.bigNum
-  end
-
-  def add(anotherOneOfMe)
-    me = @bigNum
-
-    # pad zeroes
-    sizeDifference = (me.size - anotherOneOfMe.size).abs
-    if anotherOneOfMe.size < me.size
-      anotherOneOfMe.bigNum = pad_zeroes_on_left(anotherOneOfMe, sizeDifference)
-    elsif anotherOneOfMe.size > me.size
-      me.bigNum = pad_zeroes_on_left(me, sizeDifference)
-    end
-
-    sums = ''
-    carry = 0
-    for i in (me.size-1).downto(0)
-      sum = @bigNum[i].to_i + anotherOneOfMe.bigNum[i].to_i + carry
-      carry = 0
-      if sum.to_i > 9
-        carry = 1
-        sum = sum.to_i - 10
-      end
-      sums = sum.to_s + sums
-    end
-    return MyBigNum.new(sums)
-  end
-
-end
-
-lotsOfBigNums = []
-bigNums.each do |x|
-  lotsOfBigNums.push(MyBigNum.new(x))
-end
-
-sum = MyBigNum.new('0')
-lotsOfBigNums.each do |x|
-  sum = x.add(sum)
-end
-
-puts sum.bigNum[0..9]
+puts sum.to_s[0..9]
