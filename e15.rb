@@ -2,8 +2,6 @@
 
 #How many routes are there through a 20x20 grid?
 
-
-
 $endx = 19
 $endy = 19
 
@@ -16,66 +14,38 @@ class Point
   attr_accessor :x, :y
 end
 
-class Route
-  def initialize()
-    @points = [Point.new(0,0)]
-  end
-
-  def initialize_copy(source)
-    super(source)
-    @points = source.points.dup
-  end
-
-  attr_accessor :points
-
-  def generateNextRoutes
-    l = @points.last
-    nextRoutes = []
-
-    points = [Point.new(l.x, l.y+1), Point.new(l.x+1, l.y+1), Point.new(l.x+1, l.y)]
-    points.each do |p|
-      # toss it out if we walk off the grid
-      if p.x > $endx or p.y > $endy
-        next
-      end
-      nextRoute = self.dup
-      nextRoute.points.push p
-      nextRoutes.push nextRoute
-    end
-    return nextRoutes
-  end
-end
-
 def main
   done = false
-  routes = [Route.new]
-  generation= 0
+  generation = [Point.new(0,0)]
+  generationCount = 0
    
   until done
-    puts "starting generation #{generation}"
-    generation += 1
+    puts "starting generation #{generationCount} with #{generation.size} elements"
+    generationCount += 1
+    nextGeneration = []
     done = true
-    nextRoutes = []
-    if generation == 11
-      return
-    end
-    routes.each do |r|
-      # if all routes are at the end, we are done
-      if r.points.last.x == $endx and r.points.last.y == $endy
+
+    generation.each do |l|
+      # move single node forward if we have reached the bottom right corner
+      if l.x == $endx and l.y == $endy
+        nextGeneration.push(l)
         done = done and true
-        nextRoutes.push(r)
       else
         done = false
-        nextRoutes.concat r.generateNextRoutes
+        # otherwise generate next iterations
+        points = [Point.new(l.x, l.y+1), Point.new(l.x+1, l.y+1), Point.new(l.x+1, l.y)]
+        points.each do |p|
+          # toss it out if we walk off the grid
+          next if p.x > $endx or p.y > $endy
+          nextGeneration.push(p)
+        end
       end
     end
-    routes = nextRoutes
+
+    generation = nextGeneration
   end
-   
-  puts routes.size
+
+  puts generation.size
 end
 
-require 'perftools'
-PerfTools::CpuProfiler.start("profile") do
-  main
-end
+main
