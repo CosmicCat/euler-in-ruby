@@ -2,8 +2,8 @@
 
 #How many routes are there through a 20x20 grid?
 
-$endx = 19
-$endy = 19
+$endx = 20
+$endy = 20
 
 class Point
   def initialize(x, y)
@@ -12,40 +12,73 @@ class Point
   end
 
   attr_accessor :x, :y
-end
 
-def main
-  done = false
-  generation = [Point.new(0,0)]
-  generationCount = 0
-   
-  until done
-    puts "starting generation #{generationCount} with #{generation.size} elements"
-    generationCount += 1
-    nextGeneration = []
-    done = true
-
-    generation.each do |l|
-      # move single node forward if we have reached the bottom right corner
-      if l.x == $endx and l.y == $endy
-        nextGeneration.push(l)
-        done = done and true
-      else
-        done = false
-        # otherwise generate next iterations
-        points = [Point.new(l.x, l.y+1), Point.new(l.x+1, l.y+1), Point.new(l.x+1, l.y)]
-        points.each do |p|
-          # toss it out if we walk off the grid
-          next if p.x > $endx or p.y > $endy
-          nextGeneration.push(p)
-        end
-      end
-    end
-
-    generation = nextGeneration
+  def next
+    nextX = @x + 1
+    nextY = @y - 1
+    return Point.new(nextX, nextY)
   end
 
-  puts generation.size
+  def valid?
+    return @x <= $endx && @y >= 0
+  end
+
+  def nextDiagonalOrigin
+    if @y == $endy && @x == $endx
+      return Point.new(-1, -1)
+    elsif @y == $endy
+      return Point.new(@x + 1, @y)
+    else
+      return Point.new(@x, @y + 1)
+    end
+  end
+
+  def previousPoints
+    points = []
+    if @y != 0
+      points.push(Point.new(@x, @y - 1))
+    end
+    if @x != 0
+      points.push(Point.new(@x - 1, @y))
+    end
+    return points
+  end
+  
+  def to_s
+    "x: #{@x} y: #{@y}"
+  end
 end
 
-main
+grid = []
+
+def dump(g)
+  g.each do |row|
+    row.each {|x| print " #{x}"}
+    puts ''
+  end
+end
+
+($endx+1).times do
+  grid.push(Array.new($endy+1) { 0 })
+end
+
+grid [0][0] = 1
+startOrigin = Point.new(0,0)
+
+while startOrigin.valid?
+  puts "startOrigin: #{startOrigin}"
+  currentPoint = startOrigin
+  while currentPoint.valid?
+    puts "current: #{currentPoint}"
+    prevPoints = currentPoint.previousPoints
+    grid[currentPoint.y][currentPoint.x] = prevPoints.inject(0) do |sum, point|
+      sum += grid[point.y][point.x]
+    end unless prevPoints.empty?
+
+    currentPoint = currentPoint.next
+  end
+  startOrigin = startOrigin.nextDiagonalOrigin
+end
+
+#dump(grid)
+puts grid[$endy][$endx]
